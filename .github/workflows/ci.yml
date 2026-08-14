@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: quality (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install repository and development dependencies
+        run: python -m pip install --upgrade pip && python -m pip install ".[dev,examples]"
+      - name: Check repository positioning
+        run: python scripts/check_repository_positioning.py
+      - name: Lint
+        run: flake8 teamstorm/ examples/ tests/ scripts/
+      - name: Formatting
+        run: black --check teamstorm/ examples/ tests/ scripts/
+      - name: Types
+        run: mypy teamstorm/
+      - name: Tests
+        run: pytest -q
+
+  runtime-install:
+    name: local archive install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+      - name: Build and install local release archive
+        run: |
+          git archive \
+            --format=zip \
+            --prefix=teamstorm-api-examples-1.0.0/ \
+            --output=/tmp/teamstorm-api-examples-1.0.0.zip \
+            HEAD
+          mkdir -p /tmp/teamstorm-archive-install
+          cd /tmp/teamstorm-archive-install
+          python -m zipfile -e /tmp/teamstorm-api-examples-1.0.0.zip .
+          python -m pip install --upgrade pip
+          python -m pip install ./teamstorm-api-examples-1.0.0
+      - name: Import smoke test
+        run: |
+          python - <<'PY'
+          from importlib.metadata import version
+          from teamstorm.client import TsClient
+          from teamstorm.api import TeamStormAPI
+
+          assert version("teamstorm-api-examples") == "1.0.0"
+          client = TsClient(base_url="https://teamstorm.example", token="test-token")
+          api = TeamStormAPI(client)
+          assert api.client is client
+          assert api.workspaces.client is client
+          print("local archive install import: OK")
+          PY

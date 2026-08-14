@@ -1,0 +1,96 @@
+[build-system]
+# setuptools provides local installation from an extracted release archive or
+# a Git checkout. See README.md's installation section.
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# Metadata name only -- this project is never uploaded to a package index.
+# Kept distinct from the `teamstorm` import package name on purpose (see
+# CONTRIBUTING.md) and marked Private below so a registry rejects an
+# accidental upload rather than silently accepting it.
+name = "teamstorm-api-examples"
+version = "1.0.0"
+description = "Typed Python examples and reusable API wrappers around the TeamStorm CWM Public API"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "TeamStorm API Examples contributors" },
+]
+keywords = ["teamstorm", "cwm", "api-client", "project-management", "pydantic", "examples"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3 :: Only",
+    "Typing :: Typed",
+    "Topic :: Office/Business",
+    # No standard trove classifier means "do not publish"; the closest valid
+    # signal is Private, plus the explicit statement in README.md/CONTRIBUTING.md.
+    "Private :: Do Not Upload",
+]
+dependencies = [
+    "requests>=2.31.0",
+    "pydantic>=2.0",
+]
+
+[project.urls]
+Repository = "https://github.com/saktush/teamstorm-api-examples"
+Documentation = "https://github.com/saktush/teamstorm-api-examples#readme"
+Releases = "https://github.com/saktush/teamstorm-api-examples/releases"
+
+[project.optional-dependencies]
+examples = [
+    "pandas>=2.1.0",
+    "openpyxl>=3.1.2",
+    "python-dotenv>=0.9.9",
+]
+dev = [
+    "flake8>=6.0",
+    "flake8-pyproject>=1.2",
+    "black>=23.0",
+    "mypy>=1.8",
+    "pytest>=7.4",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["teamstorm*"]
+
+[tool.setuptools.package-data]
+teamstorm = ["py.typed"]
+
+[tool.pytest.ini_options]
+pythonpath = ["examples"]
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 120
+
+[tool.flake8]
+max-line-length = 120
+exclude = [".git", "__pycache__", "docs", "build", "dist", ".venv"]
+ignore = ["E203", "E266", "E501", "E704", "W503", "F403", "F401"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+warn_unreachable = true
+disallow_subclassing_any = true
+
+[[tool.mypy.overrides]]
+module = "requests.*"
+ignore_missing_imports = true

@@ -1,0 +1,79 @@
+# log files
+*.log
+*.logs
+
+# Critical info
+sources/
+test
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Байт-код, оптимизированные / DLL-файлы
+__pycache__/
+*.py[cod]
+
+# Файлы конфигурации для venv
+.venv/
+venv/
+.env
+
+# Файлы дистрибутивов и артефакты упаковки
+dist/
+*.egg-info/
+
+# Файлы покрытия, кэши и прочие ненужные файлы
+.coverage
+*.py,cover
+.cache/
+.pytest_cache/
+.mypy_cache/
+build/
+
+# Файлы *.py,cover не несут никакого смысла
+*.py,cover
+
+# Контрольные точки в Jupyter notebook лучше оставить в стороне
+.ipynb_checkpoints
+
+# mac os files
+.ds_STORE
+
+# developement files
+.examples/
+./logs/
+.claude/
+swagger.json
+
+# subagent-driven-development scratch
+.superpowers/
