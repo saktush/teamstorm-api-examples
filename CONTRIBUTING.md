@@ -49,3 +49,14 @@ This repository contains examples plus reusable API wrappers. Its preferred dist
 - Never print tokens or authorization headers.
 - Do not retry non-idempotent writes until server state has been checked.
 - Live mutation tests require explicit authorization and a dedicated workspace.
+
+## Live tests
+
+Both live tests are opt-in (`RUN_LIVE_SMOKE=1`), read `BASE_URL`, `API_TOKEN` and `WORKSPACE_KEY` from the untracked `.env`, and write data:
+
+- `tests/examples/test_import_agile_live_smoke.py` runs the Excel importer against a workspace.
+- `tests/api/test_live_time_metrics.py` creates one throwaway workitem and drives a time metric through enable, start, pause, resume, update, stop and disable (including the `409` and no-op cases). It also needs `SMOKE_PARENT_ID` (a folder UUID) and `SMOKE_WORKITEM_TYPE`; optional `SMOKE_ATTRIBUTES_JSON`, `SMOKE_DESCRIPTION`, `SMOKE_METRIC_TEMPLATE_ID`. The user needs the `WorkspaceTimeMetrics` permission and the workspace a metric template. The public API cannot delete workitems, so clean the throwaway item up manually.
+
+```bash
+RUN_LIVE_SMOKE=1 SMOKE_PARENT_ID=<folder-uuid> SMOKE_WORKITEM_TYPE=<type> python -m pytest tests/api/test_live_time_metrics.py -q -s
+```

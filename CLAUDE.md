@@ -51,7 +51,7 @@ Notes:
 
 ## Behavior to remember
 
-- Never call a live TeamStorm instance unless the task requires it; confirm workspace/ids before mutations; do not blindly retry non-idempotent writes (create, comment, link, upload). Known live quirks: attaching an attribute to a type can return 500; creating a workitem with an unattached custom attribute can 404; linking a portfolio element may commit and then fail response validation, so read back state before retrying.
+- Never call a live TeamStorm instance unless the task requires it; confirm workspace/ids before mutations; do not blindly retry non-idempotent writes (create, comment, link, upload). Known live quirks: attaching an attribute to a type can return 500; creating a workitem with an unattached custom attribute can 404; linking a portfolio element may commit and then fail response validation, so read back state before retrying; `workitems.list(name=...)` returned 500 on one live instance; creating a workitem can return 400 `WorkitemCreationNotAllowedException` when the workspace requires a description or custom attributes.
 - `CreateWorkitemLinkRequestBody` requires `linked_workspace`.
 - Do not add registry-upload or release-artifact automation, and do not commit credentials or generated artifacts (`build/`, `*.egg-info/`, `.venv/`, `.claude/` are gitignored).
 - Docs are bilingual (`README.md` Russian, `README.en.md` English; same for `examples/`); keep them in step.

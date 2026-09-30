@@ -32,16 +32,19 @@ class WorkitemTimeMetricsAPI(BaseAPI):
     write operation (enable, update, disable, start, pause, resume, stop) and
     the template list need WorkspaceTimeMetrics. Any call may answer 401/403.
 
-    State transitions and 409: start() (NotStarted -> InProgress), stop()
-    (-> CompletedInTime / CompletedBreached) and disable() (-> Disabled) answer
-    HTTP 409 when the metric is already in the target state / the transition
-    is not allowed; enable() answers 409 when the metric cannot be attached
-    (e.g. already enabled for the workitem). The spec also lists 409 for
-    pause() and resume(), so they are not unconditionally safe: the server
-    integration tests (not the spec) show that repeating pause() on a paused
-    metric, or resume() on a running one, is answered 204 (idempotent), while
-    a transition the current state does not allow still yields 409. Do not
-    blindly retry a 409.
+    State transitions and 409 (verified against the server source and a live
+    run): Disabled, CompletedInTime and CompletedBreached are terminal. start()
+    (NotStarted/Paused -> InProgress), stop() (-> CompletedInTime /
+    CompletedBreached) and disable() (-> Disabled) answer HTTP 409
+    (WorkitemTimeMetric.InvalidTransition) when the metric is already in the
+    target state or the transition is not allowed. enable() answers 409
+    (WorkitemTimeMetric.AlreadyExists) when a metric for the same template
+    already exists on the workitem -- also after it was disabled, so a
+    disabled metric cannot be re-enabled from the same template. The spec
+    also lists 409 for pause() and resume(), yet the server handlers treat a
+    repeated pause() on a paused metric, or resume() on a running one, as a
+    no-op (204); pause()/resume() from a terminal state still yield 409. Do
+    not blindly retry a 409.
     """
 
     def list(self, workspace_key: str, *, workitem_id: UUIDStr) -> builtins.list[WorkitemTimeMetricModel]:
@@ -88,9 +91,10 @@ class WorkitemTimeMetricsAPI(BaseAPI):
         :return: EnableWorkitemTimeMetricResponseBody holding the new metric id.
         HTTP: POST /workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/enable
         NOTE: the metric is created in status NotStarted -- call start()
-        separately. Answers 409 on conflict (e.g. the metric is already
-        enabled); this is a non-idempotent create, so read back with list()
-        before retrying an ambiguous failure.
+        separately. Answers 409 (WorkitemTimeMetric.AlreadyExists) when a
+        metric for this template already exists on the workitem, even a
+        disabled one; this is a non-idempotent create, so read back with
+        list() before retrying an ambiguous failure.
         """
         data = self.client.post(
             f"/workspaces/{workspace_key}/workitems/{workitem_id}/workitem-time-metrics/enable",
@@ -169,7 +173,7 @@ class WorkitemTimeMetricsAPI(BaseAPI):
         :param metric_id: time metric UUID (path segment).
         :return: None (204 No Content).
         HTTP: POST /workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/pause
-        NOTE: the spec lists 409 for this operation; server integration tests show that pausing an
+        NOTE: the spec lists 409 for this operation; the server source shows that pausing an
         already paused metric is answered 204 (idempotent), other disallowed states give 409.
         """
         self.client.post(f"/workspaces/{workspace_key}/workitems/{workitem_id}/workitem-time-metrics/{metric_id}/pause")
@@ -184,7 +188,7 @@ class WorkitemTimeMetricsAPI(BaseAPI):
         :param metric_id: time metric UUID (path segment).
         :return: None (204 No Content).
         HTTP: POST /workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/resume
-        NOTE: the spec lists 409 for this operation; server integration tests show that resuming an
+        NOTE: the spec lists 409 for this operation; the server source shows that resuming an
         already running metric is answered 204 (idempotent), other disallowed states give 409.
         """
         self.client.post(

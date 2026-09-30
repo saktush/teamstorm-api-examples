@@ -667,6 +667,7 @@ Plus an opt-in live smoke test (`CONTRIBUTING.md`, "Live smoke test"):
 ```bash
 RUN_LIVE_SMOKE=1 python3 -m unittest tests.examples.test_import_agile_live_smoke -v
 ```
+and an opt-in live time-metrics lifecycle test, `tests/api/test_live_time_metrics.py` (settings and side effects: `CONTRIBUTING.md`, "Live tests").
 
 ---
 

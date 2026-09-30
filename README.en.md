@@ -95,7 +95,7 @@ Workspace-scoped methods take the workspace key first. Most `list()` methods col
 
 ## Time metrics (SLA/OLA) and work calendars
 
-Spec version 4.24.0 adds workitem time metrics. `enable` answers `409` when the template's metric is already attached; `start`, `stop` and `disable` answer `409` when the metric is already in the requested state; per server integration tests (the spec lists `409`), repeating `pause`/`resume` in the same state returns `204`, but a disallowed transition gives `409`. Do not retry a `409` blindly. Per the server source, `list`/`get` need `WorkspaceTimeMetrics` or read access to the workitem, while all write operations and the template list need `WorkspaceTimeMetrics`; listing work calendars is for system administrators only. Details: [`docs/api-analysis/upstream-semantics.md`](docs/api-analysis/upstream-semantics.md).
+Spec version 4.24.0 adds workitem time metrics. `enable` answers `409` when a metric for that template already exists on the workitem, even a disabled one; `start`, `stop` and `disable` answer `409` when the metric is already in the requested state; per the server source (the spec lists `409`), repeating `pause`/`resume` in the same state returns `204`, but a disallowed transition gives `409`. Do not retry a `409` blindly. Per the server source, `list`/`get` need `WorkspaceTimeMetrics` or read access to the workitem, while all write operations and the template list need `WorkspaceTimeMetrics`; listing work calendars is for system administrators only. Details: [`docs/api-analysis/upstream-semantics.md`](docs/api-analysis/upstream-semantics.md).
 
 ```python
 from uuid import UUID
