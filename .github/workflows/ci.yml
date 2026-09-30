@@ -57,14 +57,14 @@ jobs:
         run: |
           git archive \
             --format=zip \
-            --prefix=teamstorm-api-examples-1.0.0/ \
-            --output=/tmp/teamstorm-api-examples-1.0.0.zip \
+            --prefix=teamstorm-api-examples-1.1.0/ \
+            --output=/tmp/teamstorm-api-examples-1.1.0.zip \
             HEAD
           mkdir -p /tmp/teamstorm-archive-install
           cd /tmp/teamstorm-archive-install
-          python -m zipfile -e /tmp/teamstorm-api-examples-1.0.0.zip .
+          python -m zipfile -e /tmp/teamstorm-api-examples-1.1.0.zip .
           python -m pip install --upgrade pip
-          python -m pip install ./teamstorm-api-examples-1.0.0
+          python -m pip install ./teamstorm-api-examples-1.1.0
       - name: Import smoke test
         run: |
           python - <<'PY'
@@ -72,7 +72,7 @@ jobs:
           from teamstorm.client import TsClient
           from teamstorm.api import TeamStormAPI
 
-          assert version("teamstorm-api-examples") == "1.0.0"
+          assert version("teamstorm-api-examples") == "1.1.0"
           client = TsClient(base_url="https://teamstorm.example", token="test-token")
           api = TeamStormAPI(client)
           assert api.client is client

@@ -16,9 +16,9 @@ The repository is a reference implementation and example collection. Treat the c
 Prefer the versioned local release archive. It can be transferred to a machine without Git access:
 
 ```bash
-python3 -m zipfile -e teamstorm-api-examples-1.0.0.zip .
+python3 -m zipfile -e teamstorm-api-examples-1.1.0.zip .
 python3 -m venv .venv
-.venv/bin/python -m pip install ./teamstorm-api-examples-1.0.0
+.venv/bin/python -m pip install ./teamstorm-api-examples-1.1.0
 ```
 
 Verify the archive with its published `SHA256SUMS` before installation. The archive does not bundle third-party dependencies; stage compatible wheels separately for a fully offline target.

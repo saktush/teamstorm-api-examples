@@ -10,12 +10,12 @@ This is a **reference implementation and example collection**, not a separate of
 
 ## Install from a local archive — preferred
 
-Python 3.11 or newer is required. Obtain `teamstorm-api-examples-1.0.0.zip` from the repository owner or the [1.0.0 release](https://github.com/saktush/teamstorm-api-examples/releases/tag/v1.0.0), then run:
+Python 3.11 or newer is required. Obtain `teamstorm-api-examples-1.1.0.zip` from the repository owner or the [1.1.0 release](https://github.com/saktush/teamstorm-api-examples/releases/tag/v1.1.0), then run:
 
 ```bash
-python3 -m zipfile -e teamstorm-api-examples-1.0.0.zip .
+python3 -m zipfile -e teamstorm-api-examples-1.1.0.zip .
 python3 -m venv .venv
-.venv/bin/python -m pip install ./teamstorm-api-examples-1.0.0
+.venv/bin/python -m pip install ./teamstorm-api-examples-1.1.0
 ```
 
 The archive contains the project sources and metadata, but not third-party dependencies. For a fully isolated machine, transfer compatible wheels for `requests`, `pydantic`, and their dependencies, then install them from a local directory with `pip --no-index --find-links`.

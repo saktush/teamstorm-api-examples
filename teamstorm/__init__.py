@@ -14,7 +14,7 @@ except PackageNotFoundError:
     # or otherwise) -- there is no installed distribution metadata to read.
     # This project is not published to a package index; keep the source-tree
     # fallback aligned with the release version declared in pyproject.toml.
-    __version__ = "1.0.0"
+    __version__ = "1.1.0"
 
 __all__ = [
     "__version__",

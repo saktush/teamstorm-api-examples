@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 # CONTRIBUTING.md) and marked Private below so a registry rejects an
 # accidental upload rather than silently accepting it.
 name = "teamstorm-api-examples"
-version = "1.0.0"
+version = "1.1.0"
 description = "Typed Python examples and reusable API wrappers around the TeamStorm CWM Public API"
 readme = "README.md"
 requires-python = ">=3.11"

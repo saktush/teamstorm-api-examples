@@ -86,7 +86,7 @@ def test_guard_requires_archive_first_install_and_api_entrypoint_in_all_guides()
         (
             "[project]",
             'name = "teamstorm-api-examples"',
-            'version = "1.0.0"',
+            'version = "1.1.0"',
             'classifiers = ["Private :: Do Not Upload"]',
             "[project.urls]",
             'Repository = "https://github.com/saktush/teamstorm-api-examples"',
@@ -125,5 +125,5 @@ def test_guard_rejects_wrong_version_and_repository_url() -> None:
         "pyproject.toml": project,
     }
     errors = guard.required_content_errors(files)
-    assert 'pyproject missing: version = "1.0.0"' in errors
+    assert 'pyproject missing: version = "1.1.0"' in errors
     assert "pyproject missing current repository URL" in errors

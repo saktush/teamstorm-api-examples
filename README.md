@@ -20,12 +20,12 @@
 
 ## Установка из локального архива — рекомендуемый способ
 
-Требуется Python 3.11 или новее. Получите файл `teamstorm-api-examples-1.0.0.zip` у владельца репозитория или на странице [релиза 1.0.0](https://github.com/saktush/teamstorm-api-examples/releases/tag/v1.0.0), затем:
+Требуется Python 3.11 или новее. Получите файл `teamstorm-api-examples-1.1.0.zip` у владельца репозитория или на странице [релиза 1.1.0](https://github.com/saktush/teamstorm-api-examples/releases/tag/v1.1.0), затем:
 
 ```bash
-python3 -m zipfile -e teamstorm-api-examples-1.0.0.zip .
+python3 -m zipfile -e teamstorm-api-examples-1.1.0.zip .
 python3 -m venv .venv
-.venv/bin/python -m pip install ./teamstorm-api-examples-1.0.0
+.venv/bin/python -m pip install ./teamstorm-api-examples-1.1.0
 ```
 
 Архив содержит исходный код и metadata проекта, но не сторонние зависимости. Если целевая машина полностью изолирована от сети, заранее передайте совместимые wheels для `requests`, `pydantic` и их зависимостей и установите их из локального каталога через `pip --no-index --find-links`.

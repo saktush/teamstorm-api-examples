@@ -48,7 +48,7 @@ REQUIRED = {
     "docs/technical-behavior.md",
     ".agents/skills/teamstorm-api/SKILL.md",
 }
-LOCAL_ARCHIVE_NAME = "teamstorm-api-examples-1.0.0.zip"
+LOCAL_ARCHIVE_NAME = "teamstorm-api-examples-1.1.0.zip"
 API_ENTRYPOINT_IMPORT = "from teamstorm.api import TeamStormAPI"
 RU_WORKSPACE_CONFIGURATION = "Настройки пространства"
 EN_WORKSPACE_CONFIGURATION = "Workspace configuration"
@@ -106,7 +106,7 @@ def required_content_errors(files: dict[str, str]) -> list[str]:
     project = files.get("pyproject.toml", "")
     for required in (
         'name = "teamstorm-api-examples"',
-        'version = "1.0.0"',
+        'version = "1.1.0"',
         '"Private :: Do Not Upload"',
     ):
         if required not in project:
