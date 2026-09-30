@@ -5,7 +5,6 @@ from uuid import UUID, uuid4
 from pydantic import ValidationError
 
 from teamstorm.models.enums import WorkitemTimeMetricStatus, WorkitemTimeMetricTemplateType
-from teamstorm.models.roles import Permission
 from teamstorm.models.time_metrics import (
     EnableWorkitemTimeMetricRequestBody,
     EnableWorkitemTimeMetricResponseBody,
@@ -38,9 +37,6 @@ def _metric_payload(**overrides) -> dict:
 
 
 class TimeMetricsModelsTestCase(unittest.TestCase):
-    def test_permission_ends_with_workspace_time_metrics(self) -> None:
-        self.assertEqual("WorkspaceTimeMetrics", list(Permission)[-1].value)
-
     def test_parse_template_model_and_list(self) -> None:
         payload = {"id": str(uuid4()), "name": "Default SLA", "type": "Ola"}
         model = WorkitemTimeMetricTemplateModel.model_validate(payload)

@@ -3,8 +3,8 @@ Guards the API-coverage table in README.md against arithmetic drift.
 
 The table groups the 170 spec operations into functional areas. It was
 hand-written once and immediately had a wrong row (26 where the manifest says
-24), which summed to 161 against a stated total of 159 (the operation count at the time) -- the kind of error
-nobody re-checks by hand on the next edit. This test re-derives the numbers
+24), which summed to 161 against the then-current total of 159 -- the kind of
+error nobody re-checks by hand on the next edit. This test re-derives the numbers
 from tests/api/api_coverage_manifest.py, the same manifest that
 test_api_coverage.py pins to the OpenAPI spec.
 """

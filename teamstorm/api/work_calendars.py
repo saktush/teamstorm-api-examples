@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from pydantic import TypeAdapter
-
 from ._base import BaseAPI
-from teamstorm.models.work_calendars import WorkCalendarModel
+from teamstorm.models.work_calendars import WorkCalendarModel, WorkCalendarModelList
 
 
 class WorkCalendarsAPI(BaseAPI):
@@ -25,8 +23,8 @@ class WorkCalendarsAPI(BaseAPI):
         :return: every WorkCalendarModel.
         HTTP: GET /work-calendars
         NOTE: global (non-workspace-scoped), no filters, no pagination -- a
-        `{"items": [...]}` envelope is returned; get_all() is used only as
-        the client's generic list-fetch helper.
+        plain `{"items": [...]}` envelope is returned, so a single GET is used
+        (get_all() would send an undeclared maxItemsCount parameter).
         """
-        data = self.client.get_all("/work-calendars")
-        return TypeAdapter(list[WorkCalendarModel]).validate_python(data)
+        data = self.client.get("/work-calendars")
+        return WorkCalendarModelList.model_validate(data).items

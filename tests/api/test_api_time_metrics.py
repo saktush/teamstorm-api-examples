@@ -4,6 +4,7 @@ from uuid import uuid4
 
 from pydantic import ValidationError
 
+from teamstorm.client import ApiError
 from teamstorm.api.time_metrics import WorkitemTimeMetricsAPI, WorkitemTimeMetricTemplatesAPI
 from teamstorm.models.enums import WorkitemTimeMetricStatus, WorkitemTimeMetricTemplateType
 from teamstorm.models.time_metrics import (
@@ -47,7 +48,7 @@ class WorkitemTimeMetricsAPITestCase(unittest.TestCase):
     def test_list_uses_single_get_and_unwraps_items(self) -> None:
         self.client.get.return_value = {"items": [_metric_payload(), _metric_payload(status="InProgress")]}
 
-        result = self.api.list("WS", workitem_key="WS-1")
+        result = self.api.list("WS", workitem_id="WS-1")
 
         self.client.get.assert_called_once_with(_BASE)
         self.client.get_all.assert_not_called()
@@ -58,7 +59,7 @@ class WorkitemTimeMetricsAPITestCase(unittest.TestCase):
     def test_get(self) -> None:
         self.client.get.return_value = _metric_payload(id=str(self.metric_id))
 
-        result = self.api.get("WS", workitem_key="WS-1", metric_id=self.metric_id)
+        result = self.api.get("WS", workitem_id="WS-1", metric_id=self.metric_id)
 
         self.client.get.assert_called_once_with(f"{_BASE}/{self.metric_id}")
         self.assertEqual(self.metric_id, result.id)
@@ -73,7 +74,7 @@ class WorkitemTimeMetricsAPITestCase(unittest.TestCase):
             initial_spent_seconds=120,
         )
 
-        result = self.api.enable("WS", workitem_key="WS-1", body=body)
+        result = self.api.enable("WS", workitem_id="WS-1", body=body)
 
         self.client.post.assert_called_once_with(
             f"{_BASE}/enable",
@@ -86,7 +87,7 @@ class WorkitemTimeMetricsAPITestCase(unittest.TestCase):
         self.client.patch.return_value = None
         body = UpdateWorkitemTimeMetricSettingsRequestBody(limit_seconds=3600)
 
-        result = self.api.update("WS", workitem_key="WS-1", metric_id=self.metric_id, body=body)
+        result = self.api.update("WS", workitem_id="WS-1", metric_id=self.metric_id, body=body)
 
         self.assertIsNone(result)
         self.client.patch.assert_called_once_with(f"{_BASE}/{self.metric_id}", {"limitSeconds": 3600})
@@ -95,7 +96,7 @@ class WorkitemTimeMetricsAPITestCase(unittest.TestCase):
         self.client.patch.return_value = None
         body = UpdateWorkitemTimeMetricSettingsRequestBody(spent_seconds=None)
 
-        self.api.update("WS", workitem_key="WS-1", metric_id=self.metric_id, body=body)
+        self.api.update("WS", workitem_id="WS-1", metric_id=self.metric_id, body=body)
 
         self.client.patch.assert_called_once_with(f"{_BASE}/{self.metric_id}", {"spentSeconds": None})
 
@@ -104,7 +105,7 @@ class WorkitemTimeMetricsAPITestCase(unittest.TestCase):
 
         self.api.update(
             "WS",
-            workitem_key="WS-1",
+            workitem_id="WS-1",
             metric_id=self.metric_id,
             body=UpdateWorkitemTimeMetricSettingsRequestBody(),
         )
@@ -121,12 +122,41 @@ class WorkitemTimeMetricsAPITestCase(unittest.TestCase):
                 self.client.post.reset_mock()
                 self.client.post.return_value = None
 
-                result = getattr(self.api, name)("WS", workitem_key="WS-1", metric_id=self.metric_id)
+                result = getattr(self.api, name)("WS", workitem_id="WS-1", metric_id=self.metric_id)
 
                 self.assertIsNone(result)
                 self.client.post.assert_called_once_with(f"{_BASE}/{self.metric_id}/{name}")
 
-    def test_workitem_key_is_keyword_only(self) -> None:
+    def test_get_validation_error_on_bad_payload(self) -> None:
+        self.client.get.return_value = {"id": str(self.metric_id)}
+        with self.assertRaises(ValidationError):
+            self.api.get("WS", workitem_id="WS-1", metric_id=self.metric_id)
+
+    def test_list_validation_error_on_bad_payload(self) -> None:
+        self.client.get.return_value = {"items": [{"id": str(uuid4())}]}
+        with self.assertRaises(ValidationError):
+            self.api.list("WS", workitem_id="WS-1")
+
+    def test_start_conflict_propagates_without_retry(self) -> None:
+        self.client.post.side_effect = ApiError("conflict", status=409)
+
+        with self.assertRaises(ApiError) as ctx:
+            self.api.start("WS", workitem_id="WS-1", metric_id=self.metric_id)
+
+        self.assertEqual(409, ctx.exception.status)
+        self.client.post.assert_called_once_with(f"{_BASE}/{self.metric_id}/start")
+
+    def test_enable_conflict_propagates_without_retry(self) -> None:
+        self.client.post.side_effect = ApiError("conflict", status=409)
+        body = EnableWorkitemTimeMetricRequestBody(template_id=uuid4())
+
+        with self.assertRaises(ApiError) as ctx:
+            self.api.enable("WS", workitem_id="WS-1", body=body)
+
+        self.assertEqual(409, ctx.exception.status)
+        self.assertEqual(1, self.client.post.call_count)
+
+    def test_workitem_id_is_keyword_only(self) -> None:
         with self.assertRaises(TypeError):
             self.api.list("WS", "WS-1")  # type: ignore[misc]
 

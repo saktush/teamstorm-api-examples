@@ -164,16 +164,16 @@ The committed snapshot is v4.24.0 (170 operations, 38 tags). Compared with v4.18
 
 - A metric is created from a workspace template with `enable()` and starts in `NotStarted`; call `start()` to begin counting. The state machine is `NotStarted -> InProgress <-> Paused`, `Approaching`/`Breached` are set asynchronously by a background job, and `stop()` ends in `CompletedInTime` or `CompletedBreached`; `disable()` ends in `Disabled`.
 - `start()`, `stop()` and `disable()` answer `409` when the metric is already in the target state (spec: 409 is declared). `enable()` answers `409` when the metric already exists for that template on the workitem.
-- `pause()` and `resume()` also declare `409` in the spec. Server behavior: repeating `pause()` on a paused metric, or `resume()` on a running one, is answered `204` (idempotent); a transition the current state does not allow still yields `409`. Do not treat `409` as retryable.
+- `pause()` and `resume()` also declare `409` in the spec. Server behavior (server integration tests; the spec lists `409`): repeating `pause()` on a paused metric, or `resume()` on a running one, is answered `204` (idempotent); a transition the current state does not allow still yields `409`. Do not treat `409` as retryable.
 - `enable()` returns only the new metric id (`EnableWorkitemTimeMetricResponseBody`); read the metric with `get()`. It is a non-idempotent create: after an ambiguous failure call `list()` before retrying.
-- `update()` (PATCH) sends only fields set on the body. `type`, `limit_seconds`, `approach_threshold_percent` and `work_calendar_id` must never be `None` (the contract forbids `null`; the server answers `400`). `spent_seconds` is the only field that accepts an explicit `None` (JSON `null`); it is the manual override of the elapsed time.
+- `update()` (PATCH) sends only fields set on the body. `type`, `limit_seconds`, `approach_threshold_percent` and `work_calendar_id` must never be `None` (the contract forbids `null`; the server answers `400`). Explicit `None` for `spent_seconds` is sent as JSON `null`; the server accepts it, but its effect is not documented.
 
 ```python
-body = UpdateWorkitemTimeMetricSettingsRequestBody(limit_seconds=7200, spent_seconds=None)
-api.workitem_time_metrics.update("SPACE", workitem_key="SPACE-1", metric_id=metric_id, body=body)
+body = UpdateWorkitemTimeMetricSettingsRequestBody(limit_seconds=7200, spent_seconds=3600)
+api.workitem_time_metrics.update("SPACE", workitem_id="SPACE-1", metric_id=metric_id, body=body)
 ```
 
-- Reads (`list`, `get`, templates) need either the workspace `WorkspaceTimeMetrics` permission or read access to the workitem; all mutations and the template list need `WorkspaceTimeMetrics` (`Permission.WorkspaceTimeMetrics`). A metric addressed through a workitem it does not belong to answers `404`.
+- Permissions (per the server source, not the spec): `list` and `get` need either the workspace `WorkspaceTimeMetrics` permission (`Permission.WorkspaceTimeMetrics`) or read access to the workitem; all write operations (`enable`, `update`, `disable`, `start`, `pause`, `resume`, `stop`) and the template list need `WorkspaceTimeMetrics`. A metric addressed through a workitem it does not belong to answers `404`.
 - Lists under these tags are `{"items": [...]}` envelopes without `nextToken` (not paginated).
 
 **Work calendars (`WorkCalendarsAPI.list`).** `GET /work-calendars` is tenant-wide, read-only and available to system administrators only (`SystemRoles.CwmAdmin`); any other caller gets `403`.

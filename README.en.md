@@ -95,7 +95,7 @@ Workspace-scoped methods take the workspace key first. Most `list()` methods col
 
 ## Time metrics (SLA/OLA) and work calendars
 
-Spec version 4.24.0 adds workitem time metrics. `enable` answers `409` when the template's metric is already attached; `start`, `stop` and `disable` answer `409` when the metric is already in the requested state; repeating `pause`/`resume` in the same state returns `204`, but a disallowed transition gives `409`. Do not retry a `409` blindly. Changes need the `WorkspaceTimeMetrics` permission; listing work calendars is for system administrators only. Details: [`docs/api-analysis/upstream-semantics.md`](docs/api-analysis/upstream-semantics.md).
+Spec version 4.24.0 adds workitem time metrics. `enable` answers `409` when the template's metric is already attached; `start`, `stop` and `disable` answer `409` when the metric is already in the requested state; per server integration tests (the spec lists `409`), repeating `pause`/`resume` in the same state returns `204`, but a disallowed transition gives `409`. Do not retry a `409` blindly. Per the server source, `list`/`get` need `WorkspaceTimeMetrics` or read access to the workitem, while all write operations and the template list need `WorkspaceTimeMetrics`; listing work calendars is for system administrators only. Details: [`docs/api-analysis/upstream-semantics.md`](docs/api-analysis/upstream-semantics.md).
 
 ```python
 from uuid import UUID
@@ -108,24 +108,25 @@ from teamstorm.models.time_metrics import (
 template = api.workitem_metric_templates.list("SPACE")[0]
 created = api.workitem_time_metrics.enable(
     "SPACE",
-    workitem_key="SPACE-1",
+    workitem_id="SPACE-1",
     body=EnableWorkitemTimeMetricRequestBody(template_id=template.id, limit_seconds=28800),
 )
 metric_id: UUID = created.id
 
 # 2. Drive the timer: start -> pause -> resume -> stop.
 metrics = api.workitem_time_metrics
-metrics.start("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
-metrics.pause("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
-metrics.resume("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
-metrics.stop("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
+metrics.start("SPACE", workitem_id="SPACE-1", metric_id=metric_id)
+metrics.pause("SPACE", workitem_id="SPACE-1", metric_id=metric_id)
+metrics.resume("SPACE", workitem_id="SPACE-1", metric_id=metric_id)
+metrics.stop("SPACE", workitem_id="SPACE-1", metric_id=metric_id)
 
-# 3. PATCH: only the fields you set are sent; spent_seconds=None sends JSON null.
+# 3. PATCH: only the fields you set are sent (unset = unchanged, explicit None = JSON null;
+#    null is forbidden for type/limit_seconds/approach_threshold_percent/work_calendar_id, server 400).
 metrics.update(
     "SPACE",
-    workitem_key="SPACE-1",
+    workitem_id="SPACE-1",
     metric_id=metric_id,
-    body=UpdateWorkitemTimeMetricSettingsRequestBody(limit_seconds=14400, spent_seconds=None),
+    body=UpdateWorkitemTimeMetricSettingsRequestBody(limit_seconds=14400, spent_seconds=3600),
 )
 
 # 4. Work calendars are for system administrators only (HTTP 403 otherwise).

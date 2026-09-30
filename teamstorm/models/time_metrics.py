@@ -112,9 +112,9 @@ class UpdateWorkitemTimeMetricSettingsRequestBody(TsBaseModel):
 
     PATCH body: dump with `exclude_unset=True, exclude_none=False` (see
     WorkitemTimeMetricsAPI.update). All fields are nullable in the schema, but
-    per the operation description only `spentSeconds` accepts an explicit
-    `null`; sending null for type, limitSeconds, approachThresholdPercent or
-    workCalendarId is rejected by the server with HTTP 400. limitSeconds and
+    null is forbidden for type, limitSeconds, approachThresholdPercent and
+    workCalendarId (the server answers HTTP 400); null for spentSeconds is
+    accepted by the server, its effect is not documented. limitSeconds and
     approachThresholdPercent are int32; spentSeconds is int64.
     """
 

@@ -27,9 +27,8 @@ class LinksAPI(BaseAPI):
         workitem_id: workitem UUID (path segment).
         Returns: every WorkitemLinkModel attached to the workitem.
         GET /workspaces/{workspace}/workitems/{workitem}/links.
-        Errors: 404 if the workspace or workitem is not found. A link to a
-        workitem in another workspace that the caller cannot access is
-        rejected with 403 (TS-17997).
+        Errors: 403 or 404 as documented in the spec (404 if the workspace or
+        workitem is not found).
         """
         data = self.client.get_all(f"/workspaces/{workspace_key}/workitems/{workitem_id}/links")
         return TypeAdapter(list[WorkitemLinkModel]).validate_python(data)
@@ -75,8 +74,8 @@ class LinksAPI(BaseAPI):
         link_id: the link's own UUID (not either workitem's id).
         Returns: None.
         DELETE /workspaces/{workspace}/links/{linkId}.
-        Errors: 404 if the workspace or link is not found; 403 if the link
-        points into a workspace the caller cannot access (TS-17997).
+        Errors: 403 or 404 as documented in the spec (404 if the workspace or
+        link is not found).
         """
         self.client.delete(f"/workspaces/{workspace_key}/links/{link_id}")
         return None

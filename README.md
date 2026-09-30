@@ -107,7 +107,7 @@ item = api.workitems.create("SPACE", body)
 
 ## Метрики времени (SLA/OLA) и рабочие календари
 
-С версии спецификации 4.24.0 доступны метрики времени задач. `enable` отвечает `409`, если метрика шаблона уже подключена; `start`, `stop` и `disable` отвечают `409`, если метрика уже в нужном состоянии; `pause` и `resume` повторно в том же состоянии возвращают `204`, но недопустимый переход даёт `409`. Не повторяйте `409` вслепую. Для изменения нужно право `WorkspaceTimeMetrics`; список рабочих календарей доступен только системному администратору. Подробности: [`docs/api-analysis/upstream-semantics.md`](docs/api-analysis/upstream-semantics.md).
+С версии спецификации 4.24.0 доступны метрики времени задач. `enable` отвечает `409`, если метрика шаблона уже подключена; `start`, `stop` и `disable` отвечают `409`, если метрика уже в нужном состоянии; по серверным интеграционным тестам (спецификация перечисляет `409`) `pause` и `resume` повторно в том же состоянии возвращают `204`, но недопустимый переход даёт `409`. Не повторяйте `409` вслепую. По исходникам сервера (не по спецификации) `list`/`get` требуют `WorkspaceTimeMetrics` или право чтения задачи, все операции записи и список шаблонов — `WorkspaceTimeMetrics`; список рабочих календарей доступен только системному администратору. Подробности: [`docs/api-analysis/upstream-semantics.md`](docs/api-analysis/upstream-semantics.md).
 
 ```python
 from uuid import UUID
@@ -120,24 +120,25 @@ from teamstorm.models.time_metrics import (
 template = api.workitem_metric_templates.list("SPACE")[0]
 created = api.workitem_time_metrics.enable(
     "SPACE",
-    workitem_key="SPACE-1",
+    workitem_id="SPACE-1",
     body=EnableWorkitemTimeMetricRequestBody(template_id=template.id, limit_seconds=28800),
 )
 metric_id: UUID = created.id
 
 # 2. Управление отсчётом: start -> pause -> resume -> stop.
 metrics = api.workitem_time_metrics
-metrics.start("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
-metrics.pause("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
-metrics.resume("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
-metrics.stop("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
+metrics.start("SPACE", workitem_id="SPACE-1", metric_id=metric_id)
+metrics.pause("SPACE", workitem_id="SPACE-1", metric_id=metric_id)
+metrics.resume("SPACE", workitem_id="SPACE-1", metric_id=metric_id)
+metrics.stop("SPACE", workitem_id="SPACE-1", metric_id=metric_id)
 
-# 3. PATCH: меняются только заданные поля; spent_seconds=None сбрасывает значение (JSON null).
+# 3. PATCH: меняются только заданные поля (не задано = без изменений, явный None = JSON null;
+#    null запрещён для type/limit_seconds/approach_threshold_percent/work_calendar_id, сервер вернёт 400).
 metrics.update(
     "SPACE",
-    workitem_key="SPACE-1",
+    workitem_id="SPACE-1",
     metric_id=metric_id,
-    body=UpdateWorkitemTimeMetricSettingsRequestBody(limit_seconds=14400, spent_seconds=None),
+    body=UpdateWorkitemTimeMetricSettingsRequestBody(limit_seconds=14400, spent_seconds=3600),
 )
 
 # 4. Рабочие календари доступны только системному администратору (иначе HTTP 403).

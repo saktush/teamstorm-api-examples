@@ -163,7 +163,7 @@ class WorkitemsAPI(BaseAPI):
         instead -- it is a dedicated PUT endpoint with real null-clearing
         semantics.
         NOTE: an explicit `assignee=None` now really clears the assignee
-        (TS-17874); previously the null was ignored by the server. Leave
+        (TS-17874); previously it could not be cleared. Leave
         `assignee` unset to keep the current assignee.
         """
         payload = body.model_dump(mode="json", exclude_unset=True, exclude_none=False)

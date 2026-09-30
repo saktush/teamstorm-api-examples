@@ -52,8 +52,10 @@ class UserModel(TsBaseModel):
     A TeamStorm user account, as embedded in responses (author, assignee,
     changed_by, comment principal, etc.) and returned by `UsersAPI`.
 
-    NOTE: `username` is the user's real login (TS-15580), also for the
-    embedded author/updatedBy users of workitems, documents, comments, etc.
+    NOTE: `username` is the user's real login. Per the TS-15580 fix, the
+    author/updatedBy/createdBy users in workspace, role, document and
+    sprint-related responses now carry the login there instead of the display
+    name; other embedded users are not covered by that report.
 
     Swagger: UserModel
     required: displayName, email, id, username
