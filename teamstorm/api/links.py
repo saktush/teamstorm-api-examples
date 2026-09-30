@@ -27,6 +27,9 @@ class LinksAPI(BaseAPI):
         workitem_id: workitem UUID (path segment).
         Returns: every WorkitemLinkModel attached to the workitem.
         GET /workspaces/{workspace}/workitems/{workitem}/links.
+        Errors: 404 if the workspace or workitem is not found. A link to a
+        workitem in another workspace that the caller cannot access is
+        rejected with 403 (TS-17997).
         """
         data = self.client.get_all(f"/workspaces/{workspace_key}/workitems/{workitem_id}/links")
         return TypeAdapter(list[WorkitemLinkModel]).validate_python(data)
@@ -46,6 +49,12 @@ class LinksAPI(BaseAPI):
         body: link type (id or name) plus the target workitem's key/GUID.
         Returns: the created WorkitemLinkModel.
         POST /workspaces/{workspace}/workitems/{workitem}/links.
+        Errors: 404 if the workspace, workitem, link type or target is not
+        found. Cross-workspace links return 403 when the caller has no access
+        to the linked workspace (TS-17997).
+        NOTE: the inverse link is created in the linked workitem's own
+        workspace. A workspace-restricted link type must cover both
+        workspaces, otherwise the request is rejected.
         """
         payload = body.model_dump(mode="json", exclude_none=True)
         data = self.client.post(f"/workspaces/{workspace_key}/workitems/{workitem_id}/links", payload)
@@ -66,6 +75,8 @@ class LinksAPI(BaseAPI):
         link_id: the link's own UUID (not either workitem's id).
         Returns: None.
         DELETE /workspaces/{workspace}/links/{linkId}.
+        Errors: 404 if the workspace or link is not found; 403 if the link
+        points into a workspace the caller cannot access (TS-17997).
         """
         self.client.delete(f"/workspaces/{workspace_key}/links/{link_id}")
         return None

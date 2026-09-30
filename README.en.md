@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Practical typed examples and reusable Python wrappers for the **TeamStorm CWM Public API** (`/cwm/public/api/v1`). The repository contains an HTTP client, pydantic models, 32 resource interfaces covering 159 OpenAPI operations, and runnable automation examples.
+Practical typed examples and reusable Python wrappers for the **TeamStorm CWM Public API** (`/cwm/public/api/v1`). The repository contains an HTTP client, pydantic models, 35 resource interfaces covering 170 OpenAPI operations, and runnable automation examples.
 
 This is a **reference implementation and example collection**, not a separate official product. The preferred distribution method is a versioned local archive that can be transferred without Git access. It is not published to a package registry and carries no support commitment.
 
@@ -91,7 +91,46 @@ item = api.workitems.create("SPACE", body)
 
 Workspace-scoped methods take the workspace key first. Most `list()` methods collect all pages; use `client.iter_all()` for large result sets and validate each item with the matching model. PATCH calls distinguish an omitted field from an explicitly supplied `None`.
 
-`TeamStormAPI` exposes 32 lazy resource properties for workspaces, folders, workitems, documents, agile, sprints, users, roles, attributes, comments, links, attachments, portfolios, integrations, queries, time tracking, and more. The complete 159-operation map is in [`docs/api-coverage.md`](docs/api-coverage.md).
+`TeamStormAPI` exposes 35 lazy resource properties for workspaces, folders, workitems, documents, agile, sprints, users, roles, attributes, comments, links, attachments, portfolios, integrations, queries, time tracking, time metrics (SLA/OLA), and more. The complete 170-operation map is in [`docs/api-coverage.md`](docs/api-coverage.md).
+
+## Time metrics (SLA/OLA) and work calendars
+
+Spec version 4.24.0 adds workitem time metrics. `enable` answers `409` when the template's metric is already attached; `start`, `stop` and `disable` answer `409` when the metric is already in the requested state; repeating `pause`/`resume` in the same state returns `204`, but a disallowed transition gives `409`. Do not retry a `409` blindly. Changes need the `WorkspaceTimeMetrics` permission; listing work calendars is for system administrators only. Details: [`docs/api-analysis/upstream-semantics.md`](docs/api-analysis/upstream-semantics.md).
+
+```python
+from uuid import UUID
+from teamstorm.models.time_metrics import (
+    EnableWorkitemTimeMetricRequestBody,
+    UpdateWorkitemTimeMetricSettingsRequestBody,
+)
+
+# 1. Pick a template and attach the metric to a workitem (it is created as NotStarted).
+template = api.workitem_metric_templates.list("SPACE")[0]
+created = api.workitem_time_metrics.enable(
+    "SPACE",
+    workitem_key="SPACE-1",
+    body=EnableWorkitemTimeMetricRequestBody(template_id=template.id, limit_seconds=28800),
+)
+metric_id: UUID = created.id
+
+# 2. Drive the timer: start -> pause -> resume -> stop.
+metrics = api.workitem_time_metrics
+metrics.start("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
+metrics.pause("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
+metrics.resume("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
+metrics.stop("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
+
+# 3. PATCH: only the fields you set are sent; spent_seconds=None sends JSON null.
+metrics.update(
+    "SPACE",
+    workitem_key="SPACE-1",
+    metric_id=metric_id,
+    body=UpdateWorkitemTimeMetricSettingsRequestBody(limit_seconds=14400, spent_seconds=None),
+)
+
+# 4. Work calendars are for system administrators only (HTTP 403 otherwise).
+calendars = api.work_calendars.list()
+```
 
 ## API coverage
 
@@ -110,8 +149,9 @@ Workspace-scoped methods take the workspace key first. Most `list()` methods col
 | Documents | 12 | `documents`, `document_versions`, `document_statuses` |
 | Portfolios | 12 | `portfolios`, `portfolio_elements` |
 | Time tracking and queries | 5 | `time_tracking`, `queries` |
+| Time metrics (SLA/OLA) and work calendars | 11 | `workitem_time_metrics`, `workitem_metric_templates`, `work_calendars` |
 | Integrations | 11 | `git_integration_tokens`, `open_id`, `providers` |
-| **Total** | **159** | 32 properties |
+| **Total** | **170** | 35 properties |
 
 ## Examples
 

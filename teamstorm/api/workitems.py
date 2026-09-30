@@ -162,6 +162,9 @@ class WorkitemsAPI(BaseAPI):
         (including clearing it to null), use update_attribute() below
         instead -- it is a dedicated PUT endpoint with real null-clearing
         semantics.
+        NOTE: an explicit `assignee=None` now really clears the assignee
+        (TS-17874); previously the null was ignored by the server. Leave
+        `assignee` unset to keep the current assignee.
         """
         payload = body.model_dump(mode="json", exclude_unset=True, exclude_none=False)
         data = self.client.patch(
@@ -245,11 +248,14 @@ class WorkitemsAPI(BaseAPI):
         max_items_count: page size (server default 50, max 1000).
         Returns: list[WorkitemModel].
         GET /workspaces/{workspace}/workitems/updates with query params
-        changedFromDate/ChangedToDate/fromToken/maxItemsCount.
+        changedFromDate/changedToDate/fromToken/maxItemsCount.
+        NOTE: the upper-bound query parameter is spelled `changedToDate` on the wire
+        (it was `ChangedToDate` before spec v4.24.0); the Python argument name
+        `changed_to_date` is unchanged.
         """
         params: dict[str, Any] = {"changedFromDate": _query_date(changed_from_date)}
         if changed_to_date is not None:
-            params["ChangedToDate"] = _query_date(changed_to_date)
+            params["changedToDate"] = _query_date(changed_to_date)
         if from_token is not None:
             params["fromToken"] = from_token
         if max_items_count is not None:

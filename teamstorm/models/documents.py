@@ -49,6 +49,9 @@ class DocumentModel(TsBaseModel):
     required: author, createdAt, documentUrl, id, isBlocked, key, labels,
               name, parent, updatedAt, version, versionUrl, workspaceId
 
+    NOTE: `author` is always populated (TS-15580), and the `userName` of
+    author/updatedBy is the real login.
+
     NOTE: `content` is server-transformed HTML, not necessarily what a caller
     submitted verbatim: the server wraps any line in
     CreateDocumentRequestBody.content that doesn't already look like an HTML

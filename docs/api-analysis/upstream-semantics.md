@@ -2,7 +2,7 @@
 
 This document records behavior relevant to callers of the TeamStorm CWM Public API. Its public sources of truth are:
 
-- the committed OpenAPI snapshot [`../openapi/swagger-v4.18.0.json`](../openapi/swagger-v4.18.0.json);
+- the committed OpenAPI snapshot [`../openapi/swagger-v4.24.0.json`](../openapi/swagger-v4.24.0.json);
 - the typed request/response models and resource wrappers in this repository;
 - responses observed on the TeamStorm deployment you operate against.
 
@@ -155,3 +155,41 @@ Before using a new resource against production:
 5. test writes in a disposable workspace;
 6. read back state after every mutation;
 7. document deployment-specific deviations locally without committing credentials or confidential implementation details.
+
+## 11. Behavior notes for spec v4.24.0 (baseline v4.18.0)
+
+The committed snapshot is v4.24.0 (170 operations, 38 tags). Compared with v4.18.0 it adds 11 operations (time metrics and work calendars), one `Permission` value, and several server-side behavior changes that do not alter the schema. Notes marked "server behavior" are not spelled out in the OpenAPI contract; confirm them on your deployment.
+
+**Time metrics (`WorkitemTimeMetricsAPI`, `WorkitemTimeMetricTemplatesAPI`).**
+
+- A metric is created from a workspace template with `enable()` and starts in `NotStarted`; call `start()` to begin counting. The state machine is `NotStarted -> InProgress <-> Paused`, `Approaching`/`Breached` are set asynchronously by a background job, and `stop()` ends in `CompletedInTime` or `CompletedBreached`; `disable()` ends in `Disabled`.
+- `start()`, `stop()` and `disable()` answer `409` when the metric is already in the target state (spec: 409 is declared). `enable()` answers `409` when the metric already exists for that template on the workitem.
+- `pause()` and `resume()` also declare `409` in the spec. Server behavior: repeating `pause()` on a paused metric, or `resume()` on a running one, is answered `204` (idempotent); a transition the current state does not allow still yields `409`. Do not treat `409` as retryable.
+- `enable()` returns only the new metric id (`EnableWorkitemTimeMetricResponseBody`); read the metric with `get()`. It is a non-idempotent create: after an ambiguous failure call `list()` before retrying.
+- `update()` (PATCH) sends only fields set on the body. `type`, `limit_seconds`, `approach_threshold_percent` and `work_calendar_id` must never be `None` (the contract forbids `null`; the server answers `400`). `spent_seconds` is the only field that accepts an explicit `None` (JSON `null`); it is the manual override of the elapsed time.
+
+```python
+body = UpdateWorkitemTimeMetricSettingsRequestBody(limit_seconds=7200, spent_seconds=None)
+api.workitem_time_metrics.update("SPACE", workitem_key="SPACE-1", metric_id=metric_id, body=body)
+```
+
+- Reads (`list`, `get`, templates) need either the workspace `WorkspaceTimeMetrics` permission or read access to the workitem; all mutations and the template list need `WorkspaceTimeMetrics` (`Permission.WorkspaceTimeMetrics`). A metric addressed through a workitem it does not belong to answers `404`.
+- Lists under these tags are `{"items": [...]}` envelopes without `nextToken` (not paginated).
+
+**Work calendars (`WorkCalendarsAPI.list`).** `GET /work-calendars` is tenant-wide, read-only and available to system administrators only (`SystemRoles.CwmAdmin`); any other caller gets `403`.
+
+**Cross-workspace links.** Linking workitems across workspaces (`LinksAPI.create`) now answers `403` when the caller has no access to the linked workspace (it was `404`), and `404` when a link type restricted to specific workspaces does not include both workspaces. The spec now lists `404` for `ListWorkitemLinks`, `CreateWorkitemLink` and `DeleteWorkitemLink`. The inverse link is created in the linked workitem's own workspace. A document-to-workitem link across workspaces is now checked against the workitem's own workspace permissions (fixes intermittent `403` on a cold permission cache).
+
+**Workspace users and groups pagination.** For `GET /workspaces/{workspace}/users` and `.../groups`, `nextToken` is now the offset of the next page and is `null` on the last page (previously a bogus token could be returned on the last page). Sorting (name, then id) and filtering are applied before paging. Keep following `nextToken` until it is `null`; still treat it as opaque.
+
+**`userName` is the real login.** `UserModel.username` for `author`/`updated_by` style users in workspace, role, document and sprint responses now holds the login (for example `ivanov`), not the display name. `author` on a workspace is always populated.
+
+**Assignee can be cleared.** `PATCH` of a workitem with `assignee: null` now clears the assignee; an omitted key leaves it unchanged. Use the `exclude_unset=True, exclude_none=False` dump described in section 4.
+
+**Query parameter rename.** `GET /workspaces/{workspace}/workitems/updates` parameter `ChangedToDate` is now `changedToDate` in the spec. The wrapper sends the new spelling; the server binds query names case-insensitively, so both work on the wire.
+
+**API documentation URLs (TS-7821).** The interactive API reference moved to `/api/v1/docs` and the OpenAPI JSON to `/api/v1/swagger.json`; the old `/cwm/public/swagger` and `/cwm/public/scalar` URLs redirect to `/api/v1/docs`. The API base `/cwm/public/api/v1` and the `PrivateToken` authorization are unchanged.
+
+**Not in v4.24.0.** The web-link attribute type (TS-5949) is not part of this snapshot: `AttributeType` still has the seven values `UniString`, `Number`, `Date`, `UniSelect`, `Tag`, `User`, `TimeDuration`. It needs a newer spec snapshot before the wrapper can support it.
+
+**Permission enum.** `Permission` gained `WorkspaceTimeMetrics` in v4.24.0; the wrapper also mirrors `WorkspaceTreeMove`, which was missing from the v4.18.0-era enum. `tests/api/test_models_enums.py` compares every wrapper enum with the committed snapshot.

@@ -20,5 +20,5 @@ uv pip install --python .venv/bin/python ".[dev,examples]"
 - Do not call a live TeamStorm instance unless the task explicitly requires it.
 - Confirm workspace and identifiers before any mutation.
 - Do not blindly retry creates, comments, links, uploads, or other non-idempotent calls.
-- Preserve `import teamstorm`, `TsClient`, `TeamStormAPI`, typed request models, and the 159-operation coverage test.
+- Preserve `import teamstorm`, `TsClient`, `TeamStormAPI`, typed request models, and the 170-operation coverage test.
 - Do not add registry upload or release-artifact automation.

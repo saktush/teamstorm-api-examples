@@ -320,3 +320,32 @@ class SystemRoles(StrEnum):
     CwmUser = "CwmUser"
     SecurityOfficer = "SecurityOfficer"
     CwmGuest = "CwmGuest"
+
+
+class WorkitemTimeMetricStatus(StrEnum):
+    """
+    Swagger: WorkitemTimeMetricStatus -- lifecycle status of a workitem time
+    metric (`WorkitemTimeMetricModel.status`). A metric is created `NotStarted`;
+    `Disabled` is reached via the disable operation, `CompletedInTime` /
+    `CompletedBreached` via stop (depending on whether the limit was exceeded).
+    """
+
+    NotStarted = "NotStarted"
+    InProgress = "InProgress"
+    Approaching = "Approaching"
+    Paused = "Paused"
+    Breached = "Breached"
+    CompletedInTime = "CompletedInTime"
+    CompletedBreached = "CompletedBreached"
+    Disabled = "Disabled"
+
+
+class WorkitemTimeMetricTemplateType(StrEnum):
+    """
+    Swagger: WorkitemTimeMetricTemplateType -- kind of a time metric / metric
+    template: Sla, Ola or Custom.
+    """
+
+    Sla = "Sla"
+    Ola = "Ola"
+    Custom = "Custom"

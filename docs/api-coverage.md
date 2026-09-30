@@ -1,8 +1,8 @@
 # CWM Python API wrapper — Operation Coverage
 
-Full mapping of every CWM Public API spec operation (OpenAPI 3.0.4, `docs/openapi/swagger-v4.18.0.json`, 159 operations across 35 tags) to the concrete `teamstorm` API wrapper method that implements it.
+Full mapping of every CWM Public API spec operation (OpenAPI 3.0.4, `docs/openapi/swagger-v4.24.0.json`, 170 operations across 38 tags) to the concrete `teamstorm` API wrapper method that implements it.
 
-**Status: 159/159 operations implemented (100%).** Verified by `tests/api/test_api_coverage.py`, which asserts the manifest in `tests/api/api_coverage_manifest.py` is both internally consistent and exactly equal, in both directions, to the operation set of the committed spec snapshot `docs/openapi/swagger-v4.18.0.json` -- no operation missing, no phantom entry.
+**Status: 170/170 operations implemented (100%).** Verified by `tests/api/test_api_coverage.py`, which asserts the manifest in `tests/api/api_coverage_manifest.py` is both internally consistent and exactly equal, in both directions, to the operation set of the committed spec snapshot `docs/openapi/swagger-v4.24.0.json` -- no operation missing, no phantom entry.
 
 This table is generated from that same manifest, so it cannot drift from what the coverage test actually checks.
 
@@ -37,19 +37,22 @@ How to read the "API wrapper method" column: `api_property.method(...)` -- `api_
 | Types | 7 | `TypesAPI` | `teamstorm/api/types.py` |
 | UserGroups | 2 | `GroupsAPI` | `teamstorm/api/groups.py` |
 | Users | 4 | `UsersAPI` | `teamstorm/api/users.py` |
+| WorkCalendars | 1 | `WorkCalendarsAPI` | `teamstorm/api/work_calendars.py` |
 | Workflows | 5 | `WorkflowsAPI` | `teamstorm/api/workflows.py` |
 | WorkitemAttachments | 9 | `WorkitemAttachmentsAPI` | `teamstorm/api/attachments.py` |
 | WorkitemAttributes | 2 | `WorkitemsAPI` | `teamstorm/api/workitems.py` |
 | WorkitemComments | 6 | `WorkitemCommentsAPI` | `teamstorm/api/comments.py` |
 | WorkitemLinks | 3 | `LinksAPI` | `teamstorm/api/links.py` |
+| WorkitemTimeMetricTemplates | 1 | `WorkitemTimeMetricTemplatesAPI` | `teamstorm/api/time_metrics.py` |
+| WorkitemTimeMetrics | 9 | `WorkitemTimeMetricsAPI` | `teamstorm/api/time_metrics.py` |
 | Workitems | 8 | `WorkitemsAPI` | `teamstorm/api/workitems.py` |
 | WorkitemsSharing | 4 | `WorkitemSharingAPI` | `teamstorm/api/sharing.py` |
 | WorkspaceGroups | 6 | `WorkspaceGroupsAPI` | `teamstorm/api/workspace_groups.py` |
 | WorkspaceUsers | 6 | `WorkspaceUsersAPI` | `teamstorm/api/workspace_users.py` |
 | Workspaces | 5 | `WorkspacesAPI` | `teamstorm/api/workspaces.py` |
-| **TOTAL** | **159** | | |
+| **TOTAL** | **170** | | |
 
-Tag count: 35. Operation count: 159 / 159.
+Tag count: 38. Operation count: 170 / 170.
 
 ## Full operation table
 
@@ -283,6 +286,12 @@ Tag count: 35. Operation count: 159 / 159.
 | POST | `/users/unblock/{userId}` | UnblockUser | `api.users.unblock(...)` |
 | GET | `/users/{user}` | GetUser | `api.users.get(...)` |
 
+### WorkCalendars (1 op)
+
+| HTTP | Path | operationId | API wrapper method |
+|---|---|---|---|
+| GET | `/work-calendars` | GetWorkCalendars | `api.work_calendars.list(...)` |
+
 ### Workflows (5 ops)
 
 | HTTP | Path | operationId | API wrapper method |
@@ -332,6 +341,26 @@ Tag count: 35. Operation count: 159 / 159.
 | DELETE | `/workspaces/{workspace}/links/{linkId}` | DeleteWorkitemLink | `api.links.delete(...)` |
 | GET | `/workspaces/{workspace}/workitems/{workitem}/links` | ListWorkitemLinks | `api.links.list(...)` |
 | POST | `/workspaces/{workspace}/workitems/{workitem}/links` | CreateWorkitemLink | `api.links.create(...)` |
+
+### WorkitemTimeMetricTemplates (1 op)
+
+| HTTP | Path | operationId | API wrapper method |
+|---|---|---|---|
+| GET | `/workspaces/{workspace}/workitem-metric-templates` | GetWorkitemTimeMetricTemplates | `api.workitem_metric_templates.list(...)` |
+
+### WorkitemTimeMetrics (9 ops)
+
+| HTTP | Path | operationId | API wrapper method |
+|---|---|---|---|
+| GET | `/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics` | GetWorkitemTimeMetrics | `api.workitem_time_metrics.list(...)` |
+| POST | `/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/enable` | EnableWorkitemTimeMetric | `api.workitem_time_metrics.enable(...)` |
+| GET | `/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}` | GetWorkitemTimeMetric | `api.workitem_time_metrics.get(...)` |
+| PATCH | `/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}` | UpdateWorkitemTimeMetricSettings | `api.workitem_time_metrics.update(...)` |
+| POST | `/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/disable` | DisableWorkitemTimeMetric | `api.workitem_time_metrics.disable(...)` |
+| POST | `/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/pause` | PauseWorkitemTimeMetric | `api.workitem_time_metrics.pause(...)` |
+| POST | `/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/resume` | ResumeWorkitemTimeMetric | `api.workitem_time_metrics.resume(...)` |
+| POST | `/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/start` | StartWorkitemTimeMetric | `api.workitem_time_metrics.start(...)` |
+| POST | `/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/stop` | StopWorkitemTimeMetric | `api.workitem_time_metrics.stop(...)` |
 
 ### Workitems (8 ops)
 

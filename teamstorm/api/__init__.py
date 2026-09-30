@@ -23,9 +23,11 @@ from teamstorm.api.roles import RolesAPI
 from teamstorm.api.sharing import DocumentSharingAPI, WorkitemSharingAPI
 from teamstorm.api.sprints import SprintsAPI
 from teamstorm.api.statuses import StatusesAPI
+from teamstorm.api.time_metrics import WorkitemTimeMetricsAPI, WorkitemTimeMetricTemplatesAPI
 from teamstorm.api.time_tracking import TimeTrackingAPI
 from teamstorm.api.types import TypesAPI
 from teamstorm.api.users import UsersAPI
+from teamstorm.api.work_calendars import WorkCalendarsAPI
 from teamstorm.api.workflows import WorkflowsAPI
 from teamstorm.api.workitems import WorkitemsAPI
 from teamstorm.api.workspace_groups import WorkspaceGroupsAPI
@@ -59,10 +61,13 @@ __all__ = [
     "TimeTrackingAPI",
     "TypesAPI",
     "UsersAPI",
+    "WorkCalendarsAPI",
     "WorkflowsAPI",
     "WorkitemAttachmentsAPI",
     "WorkitemCommentsAPI",
     "WorkitemSharingAPI",
+    "WorkitemTimeMetricTemplatesAPI",
+    "WorkitemTimeMetricsAPI",
     "WorkitemsAPI",
     "WorkspaceGroupsAPI",
     "WorkspaceUsersAPI",

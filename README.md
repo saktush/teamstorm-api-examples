@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Практические типизированные примеры и переиспользуемые Python-обёртки для **TeamStorm CWM Public API** (`/cwm/public/api/v1`). Репозиторий содержит клиент, pydantic-модели, 32 ресурсных интерфейса для 159 операций OpenAPI и готовые сценарии автоматизации.
+Практические типизированные примеры и переиспользуемые Python-обёртки для **TeamStorm CWM Public API** (`/cwm/public/api/v1`). Репозиторий содержит клиент, pydantic-модели, 35 ресурсных интерфейсов для 170 операций OpenAPI и готовые сценарии автоматизации.
 
 Это **эталонная реализация и набор примеров**, а не отдельный официальный продукт. Приоритетный способ распространения — версионированный локальный архив, который можно передать без доступа к Git. Публикации в реестры пакетов и обещания поддержки нет.
 
@@ -105,9 +105,48 @@ item = api.workitems.create("SPACE", body)
 
 Большинство `list()`-методов собирает все страницы. Для больших наборов используйте `client.iter_all()` и валидируйте элементы соответствующей моделью.
 
+## Метрики времени (SLA/OLA) и рабочие календари
+
+С версии спецификации 4.24.0 доступны метрики времени задач. `enable` отвечает `409`, если метрика шаблона уже подключена; `start`, `stop` и `disable` отвечают `409`, если метрика уже в нужном состоянии; `pause` и `resume` повторно в том же состоянии возвращают `204`, но недопустимый переход даёт `409`. Не повторяйте `409` вслепую. Для изменения нужно право `WorkspaceTimeMetrics`; список рабочих календарей доступен только системному администратору. Подробности: [`docs/api-analysis/upstream-semantics.md`](docs/api-analysis/upstream-semantics.md).
+
+```python
+from uuid import UUID
+from teamstorm.models.time_metrics import (
+    EnableWorkitemTimeMetricRequestBody,
+    UpdateWorkitemTimeMetricSettingsRequestBody,
+)
+
+# 1. Выбрать шаблон и подключить метрику к задаче (метрика создаётся в статусе NotStarted).
+template = api.workitem_metric_templates.list("SPACE")[0]
+created = api.workitem_time_metrics.enable(
+    "SPACE",
+    workitem_key="SPACE-1",
+    body=EnableWorkitemTimeMetricRequestBody(template_id=template.id, limit_seconds=28800),
+)
+metric_id: UUID = created.id
+
+# 2. Управление отсчётом: start -> pause -> resume -> stop.
+metrics = api.workitem_time_metrics
+metrics.start("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
+metrics.pause("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
+metrics.resume("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
+metrics.stop("SPACE", workitem_key="SPACE-1", metric_id=metric_id)
+
+# 3. PATCH: меняются только заданные поля; spent_seconds=None сбрасывает значение (JSON null).
+metrics.update(
+    "SPACE",
+    workitem_key="SPACE-1",
+    metric_id=metric_id,
+    body=UpdateWorkitemTimeMetricSettingsRequestBody(limit_seconds=14400, spent_seconds=None),
+)
+
+# 4. Рабочие календари доступны только системному администратору (иначе HTTP 403).
+calendars = api.work_calendars.list()
+```
+
 ## Области API
 
-`TeamStormAPI` предоставляет 32 ленивых свойства: `workspaces`, `folders`, `agile`, `sprints`, `workitems`, `users`, `types`, `workflows`, `statuses`, `attributes`, комментарии, документы, вложения, права доступа, связи, портфели, роли, группы, интеграции, запросы и учёт времени. Полная карта 159 операций находится в [`docs/api-coverage.md`](docs/api-coverage.md).
+`TeamStormAPI` предоставляет 35 ленивых свойств: `workspaces`, `folders`, `agile`, `sprints`, `workitems`, `users`, `types`, `workflows`, `statuses`, `attributes`, комментарии, документы, вложения, права доступа, связи, портфели, роли, группы, интеграции, запросы, учёт времени и метрики времени (SLA/OLA). Полная карта 170 операций находится в [`docs/api-coverage.md`](docs/api-coverage.md).
 
 ## Известные особенности живого API
 
@@ -134,8 +173,9 @@ item = api.workitems.create("SPACE", body)
 | Документы | 12 | `documents`, `document_versions`, `document_statuses` |
 | Портфели | 12 | `portfolios`, `portfolio_elements` |
 | Учёт времени и запросы | 5 | `time_tracking`, `queries` |
+| Метрики времени (SLA/OLA) и рабочие календари | 11 | `workitem_time_metrics`, `workitem_metric_templates`, `work_calendars` |
 | Интеграции | 11 | `git_integration_tokens`, `open_id`, `providers` |
-| **Итого** | **159** | 32 свойства |
+| **Итого** | **170** | 35 свойств |
 
 ## Примеры
 

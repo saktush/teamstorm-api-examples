@@ -17,7 +17,7 @@ look at line 86." If a citation and the file disagree, **search the file by symb
 name** and trust what you find there.
 
 **When this document and the code disagree, the code wins.** The current, authoritative
-sources are, in order: the code itself, `docs/openapi/swagger-v4.18.0.json` (the committed
+sources are, in order: the code itself, `docs/openapi/swagger-v4.24.0.json` (the committed
 spec snapshot), `docs/api-coverage.md` (generated, cross-checked coverage), and
 `tests/api/` (behavior pinned by tests). This document is a map, not the territory —
 useful for orientation, not a substitute for reading the file you're about to change.
@@ -337,7 +337,7 @@ return TypeAdapter(list[WorkitemModel]).validate_python(data)
 ```
 
 `TypeAdapter(list[Model])` (not `parse_obj_as`, not a hand-rolled loop) is the
-only pattern used for list validation across every `*API` class (32 of them,
+only pattern used for list validation across every `*API` class (35 of them,
 per §6).
 
 **Serializing a request body — two different rules depending on the verb.**
@@ -476,7 +476,7 @@ wrapper convention carries over to the examples.
 **The style is not perfectly uniform, but converges on a common shape.** The
 dominant form is Sphinx-ish: a short prose summary, then `:param name:` lines,
 a `:return:` line, and a trailing `HTTP: <VERB> <path>` line naming the exact
-endpoint (cross-checked against `docs/openapi/swagger-v4.18.0.json` and the coverage
+endpoint (cross-checked against `docs/openapi/swagger-v4.24.0.json` and the coverage
 manifest when it was written — no mismatches found at the time):
 
 ```python
@@ -521,7 +521,7 @@ def get(self, user: str, *, provider_id: UUID | None = None) -> UserModel:
 
 Both are "in convention" — the one hard rule is that the `HTTP: <VERB> <path>`
 line is present on essentially every `*API` method, since that's what makes the
-docstring cross-checkable against the spec without opening `swagger-v4.18.0.json` in
+docstring cross-checkable against the spec without opening `swagger-v4.24.0.json` in
 another window. When adding a new method, either style is acceptable; match
 whichever style already dominates the file you're editing.
 

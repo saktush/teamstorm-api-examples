@@ -37,6 +37,9 @@ class WorkspaceModel(TsBaseModel):
     """
     Swagger: WorkspaceModel [1]
     required: id, key, name
+
+    NOTE: `author` is always populated by the server now (TS-15580); the
+    field stays optional because swagger still marks it nullable.
     """
 
     id: UUID

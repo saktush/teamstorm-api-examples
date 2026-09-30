@@ -73,6 +73,8 @@ from .enums import (
     TypeColor,
     TypeIcon,
     WorkflowType,
+    WorkitemTimeMetricStatus,
+    WorkitemTimeMetricTemplateType,
 )
 from .folders import CreateFolderRequestBody, FolderModel, PatchFolderRequestBody
 from .integrations import (
@@ -141,8 +143,18 @@ from .statuses import (
     StatusModel,
     StatusModelList,
 )
+from .time_metrics import (
+    EnableWorkitemTimeMetricRequestBody,
+    EnableWorkitemTimeMetricResponseBody,
+    UpdateWorkitemTimeMetricSettingsRequestBody,
+    WorkitemTimeMetricModel,
+    WorkitemTimeMetricModelList,
+    WorkitemTimeMetricTemplateModel,
+    WorkitemTimeMetricTemplateModelList,
+)
 from .time_tracking import TimeTrackingEntryModel, TimeTrackingEntryTypeModel, TimeTrackingModelList
 from .types import CreateTypeRequestBody, PatchTypeRequestBody, TypeModel, TypeModelList
+from .work_calendars import WorkCalendarModel, WorkCalendarModelList
 from .workflows import (
     CreateTransitionRequestBody,
     CreateWorkflowRequestBody,
@@ -217,6 +229,8 @@ __all__ = [
     "DocumentVersionsModelList",
     "DocumentsModelList",
     "DocumentsStatusModelList",
+    "EnableWorkitemTimeMetricRequestBody",
+    "EnableWorkitemTimeMetricResponseBody",
     "ErrorModel",
     "EstimatesType",
     "FolderModel",
@@ -313,16 +327,25 @@ __all__ = [
     "UpdateUserFieldRequestBody",
     "UpdateUserFieldValueModel",
     "UpdateWorkitemAttributeRequestBody",
+    "UpdateWorkitemTimeMetricSettingsRequestBody",
     "UserFieldValueModel",
     "UserModel",
     "UserModelList",
     "UserPrincipalModel",
     "UsersModelList",
+    "WorkCalendarModel",
+    "WorkCalendarModelList",
     "WorkflowModel",
     "WorkflowModelList",
     "WorkflowStatusModel",
     "WorkflowType",
     "WorkitemLinkModel",
+    "WorkitemTimeMetricModel",
+    "WorkitemTimeMetricModelList",
+    "WorkitemTimeMetricStatus",
+    "WorkitemTimeMetricTemplateModel",
+    "WorkitemTimeMetricTemplateModelList",
+    "WorkitemTimeMetricTemplateType",
     "WorkitemsCountModel",
     "WorkspaceModel",
 ]

@@ -156,6 +156,18 @@ class ModelsExportsTestCase(unittest.TestCase):
             "WorkspaceModel",
             "ErrorModel",
             "OptionModel",
+            # --- v4.24.0: time metrics and work calendars ---
+            "WorkitemTimeMetricStatus",
+            "WorkitemTimeMetricTemplateType",
+            "WorkitemTimeMetricTemplateModel",
+            "WorkitemTimeMetricTemplateModelList",
+            "WorkitemTimeMetricModel",
+            "WorkitemTimeMetricModelList",
+            "EnableWorkitemTimeMetricRequestBody",
+            "EnableWorkitemTimeMetricResponseBody",
+            "UpdateWorkitemTimeMetricSettingsRequestBody",
+            "WorkCalendarModel",
+            "WorkCalendarModelList",
         }
         self.assertTrue(expected.issubset(set(models.__all__)))
         missing = expected - set(models.__all__)

@@ -27,9 +27,11 @@ if TYPE_CHECKING:
     from teamstorm.api.sharing import DocumentSharingAPI, WorkitemSharingAPI
     from teamstorm.api.sprints import SprintsAPI
     from teamstorm.api.statuses import StatusesAPI
+    from teamstorm.api.time_metrics import WorkitemTimeMetricsAPI, WorkitemTimeMetricTemplatesAPI
     from teamstorm.api.time_tracking import TimeTrackingAPI
     from teamstorm.api.types import TypesAPI
     from teamstorm.api.users import UsersAPI
+    from teamstorm.api.work_calendars import WorkCalendarsAPI
     from teamstorm.api.workflows import WorkflowsAPI
     from teamstorm.api.workitems import WorkitemsAPI
     from teamstorm.api.workspace_groups import WorkspaceGroupsAPI
@@ -297,3 +299,24 @@ class TeamStormAPI:
         from teamstorm.api.integrations import OpenIdAPI
 
         return OpenIdAPI(self.client)
+
+    @property
+    def workitem_time_metrics(self) -> WorkitemTimeMetricsAPI:
+        """SLA/OLA-style time metrics on a workitem: enable from a template, start/pause/resume/stop. Returns WorkitemTimeMetricsAPI."""
+        from teamstorm.api.time_metrics import WorkitemTimeMetricsAPI
+
+        return WorkitemTimeMetricsAPI(self.client)
+
+    @property
+    def workitem_metric_templates(self) -> WorkitemTimeMetricTemplatesAPI:
+        """Workspace time-metric templates that can be enabled on workitems. Returns WorkitemTimeMetricTemplatesAPI."""
+        from teamstorm.api.time_metrics import WorkitemTimeMetricTemplatesAPI
+
+        return WorkitemTimeMetricTemplatesAPI(self.client)
+
+    @property
+    def work_calendars(self) -> WorkCalendarsAPI:
+        """Work calendars used by time metrics (tenant-wide, system administrators only). Returns WorkCalendarsAPI."""
+        from teamstorm.api.work_calendars import WorkCalendarsAPI
+
+        return WorkCalendarsAPI(self.client)

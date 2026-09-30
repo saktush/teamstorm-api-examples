@@ -1,6 +1,6 @@
 # tests/api/api_coverage_manifest.py
 """
-Explicit, hand-maintained manifest: every one of the 159 CWM Public API spec
+Explicit, hand-maintained manifest: every one of the 170 CWM Public API spec
 operations, mapped to the concrete `teamstorm` API wrapper method that
 implements it.
 
@@ -47,7 +47,7 @@ wrapper method. It does NOT re-verify that a given method's internal f-string
 actually produces the exact path string -- that per-method verb/path/body
 assertion is what the per-resource tests under `tests/api/test_api_*.py`
 already do (see docs/api-analysis/conventions.md section 8). The two kinds
-of test are complementary: this file proves breadth (all 159 covered,
+of test are complementary: this file proves breadth (all 170 covered,
 nothing double-counted or invented), the per-resource tests prove
 correctness (the one method for each operation calls the right
 verb/path/params).
@@ -813,6 +813,10 @@ COVERAGE_MANIFEST: List[OpMapping] = [
     OpMapping("POST", "/users/block/{userId}", "Users", "BlockUser", "users", "UsersAPI", "block"),
     OpMapping("POST", "/users/unblock/{userId}", "Users", "UnblockUser", "users", "UsersAPI", "unblock"),
     OpMapping("GET", "/users/{user}", "Users", "GetUser", "users", "UsersAPI", "get"),
+    # --- WorkCalendars (1) ---------------------------------------------------
+    OpMapping(
+        "GET", "/work-calendars", "WorkCalendars", "GetWorkCalendars", "work_calendars", "WorkCalendarsAPI", "list"
+    ),
     # --- Workflows (5) -----------------------------------------------------
     OpMapping(
         "GET",
@@ -1042,6 +1046,98 @@ COVERAGE_MANIFEST: List[OpMapping] = [
         "links",
         "LinksAPI",
         "create",
+    ),
+    # --- WorkitemTimeMetricTemplates (1) -------------------------------------
+    OpMapping(
+        "GET",
+        "/workspaces/{workspace}/workitem-metric-templates",
+        "WorkitemTimeMetricTemplates",
+        "GetWorkitemTimeMetricTemplates",
+        "workitem_metric_templates",
+        "WorkitemTimeMetricTemplatesAPI",
+        "list",
+    ),
+    # --- WorkitemTimeMetrics (9) ---------------------------------------------
+    OpMapping(
+        "GET",
+        "/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics",
+        "WorkitemTimeMetrics",
+        "GetWorkitemTimeMetrics",
+        "workitem_time_metrics",
+        "WorkitemTimeMetricsAPI",
+        "list",
+    ),
+    OpMapping(
+        "POST",
+        "/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/enable",
+        "WorkitemTimeMetrics",
+        "EnableWorkitemTimeMetric",
+        "workitem_time_metrics",
+        "WorkitemTimeMetricsAPI",
+        "enable",
+    ),
+    OpMapping(
+        "GET",
+        "/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}",
+        "WorkitemTimeMetrics",
+        "GetWorkitemTimeMetric",
+        "workitem_time_metrics",
+        "WorkitemTimeMetricsAPI",
+        "get",
+    ),
+    OpMapping(
+        "PATCH",
+        "/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}",
+        "WorkitemTimeMetrics",
+        "UpdateWorkitemTimeMetricSettings",
+        "workitem_time_metrics",
+        "WorkitemTimeMetricsAPI",
+        "update",
+    ),
+    OpMapping(
+        "POST",
+        "/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/disable",
+        "WorkitemTimeMetrics",
+        "DisableWorkitemTimeMetric",
+        "workitem_time_metrics",
+        "WorkitemTimeMetricsAPI",
+        "disable",
+    ),
+    OpMapping(
+        "POST",
+        "/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/pause",
+        "WorkitemTimeMetrics",
+        "PauseWorkitemTimeMetric",
+        "workitem_time_metrics",
+        "WorkitemTimeMetricsAPI",
+        "pause",
+    ),
+    OpMapping(
+        "POST",
+        "/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/resume",
+        "WorkitemTimeMetrics",
+        "ResumeWorkitemTimeMetric",
+        "workitem_time_metrics",
+        "WorkitemTimeMetricsAPI",
+        "resume",
+    ),
+    OpMapping(
+        "POST",
+        "/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/start",
+        "WorkitemTimeMetrics",
+        "StartWorkitemTimeMetric",
+        "workitem_time_metrics",
+        "WorkitemTimeMetricsAPI",
+        "start",
+    ),
+    OpMapping(
+        "POST",
+        "/workspaces/{workspace}/workitems/{workitem}/workitem-time-metrics/{metricId}/stop",
+        "WorkitemTimeMetrics",
+        "StopWorkitemTimeMetric",
+        "workitem_time_metrics",
+        "WorkitemTimeMetricsAPI",
+        "stop",
     ),
     # --- Workitems (8) -----------------------------------------------------
     OpMapping(

@@ -36,6 +36,7 @@ class Permission(StrEnum):
     WorkspaceViewEdit = "WorkspaceViewEdit"
     WorkspaceViewDelete = "WorkspaceViewDelete"
     WorkspaceTicketsSettings = "WorkspaceTicketsSettings"
+    WorkspaceTreeMove = "WorkspaceTreeMove"
     WorkitemCreate = "WorkitemCreate"
     WorkitemAssignEdit = "WorkitemAssignEdit"
     WorkitemStatusEdit = "WorkitemStatusEdit"
@@ -82,6 +83,7 @@ class Permission(StrEnum):
     DocumentExport = "DocumentExport"
     DocumentBlock = "DocumentBlock"
     WorkspaceDocumentsRead = "WorkspaceDocumentsRead"
+    WorkspaceTimeMetrics = "WorkspaceTimeMetrics"
 
 
 class SimpleRoleModel(TsBaseModel):

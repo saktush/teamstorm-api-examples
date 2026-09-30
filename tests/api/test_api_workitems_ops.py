@@ -185,7 +185,7 @@ class WorkitemsAPIListUpdatesTestCase(unittest.TestCase):
             f"/workspaces/{self.workspace}/workitems/updates",
             params={
                 "changedFromDate": "2026-07-01T00:00:00Z",
-                "ChangedToDate": "2026-07-28T00:00:00Z",
+                "changedToDate": "2026-07-28T00:00:00Z",
                 "fromToken": "tok-1",
                 "maxItemsCount": 100,
             },
@@ -207,7 +207,7 @@ class WorkitemsAPIListUpdatesTestCase(unittest.TestCase):
             f"/workspaces/{self.workspace}/workitems/updates",
             params={
                 "changedFromDate": changed_from.isoformat(),
-                "ChangedToDate": changed_to.isoformat(),
+                "changedToDate": changed_to.isoformat(),
             },
         )
 

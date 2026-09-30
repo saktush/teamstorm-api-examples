@@ -1,6 +1,6 @@
 # tests/api/test_api_coverage.py
 """
-Proves that all 159 CWM Public API spec operations are implemented by the
+Proves that all 170 CWM Public API spec operations are implemented by the
 `teamstorm` API wrappers, using the hand-maintained manifest in
 tests/api/api_coverage_manifest.py rather than parsing `teamstorm/api/*.py` source.
 
@@ -17,7 +17,7 @@ guidance, an explicit, correct manifest beats a clever, flaky parser -- this
 test suite verifies the manifest is exhaustive and self-consistent, and (when
 swagger.json is available) verifies it against the live spec too.
 
-docs/openapi/swagger-v4.18.0.json is a committed snapshot of the OpenAPI spec
+docs/openapi/swagger-v4.24.0.json is a committed snapshot of the OpenAPI spec
 fetched from the live server, so the spec cross-check below runs in a fresh
 clone and in CI. The tests still skip gracefully when the file is absent.
 """
@@ -45,11 +45,11 @@ if str(_TESTS_DIR) not in sys.path:
 
 from api_coverage_manifest import COVERAGE_MANIFEST  # noqa: E402
 
-SWAGGER_PATH = Path(__file__).resolve().parent.parent.parent / "docs" / "openapi" / "swagger-v4.18.0.json"
+SWAGGER_PATH = Path(__file__).resolve().parent.parent.parent / "docs" / "openapi" / "swagger-v4.24.0.json"
 API_PREFIX = "/cwm/public/api/v1"
 _HTTP_VERBS = {"get", "post", "put", "patch", "delete"}
 
-EXPECTED_OPERATION_COUNT = 159
+EXPECTED_OPERATION_COUNT = 170
 
 
 def _load_spec_operations() -> set:
@@ -121,7 +121,7 @@ class ManifestSelfConsistencyTestCase(unittest.TestCase):
 
 @unittest.skipUnless(
     SWAGGER_PATH.exists(),
-    "docs/openapi/swagger-v4.18.0.json not present -- spec cross-check skipped",
+    "docs/openapi/swagger-v4.24.0.json not present -- spec cross-check skipped",
 )
 class ManifestMatchesSpecTestCase(unittest.TestCase):
     """

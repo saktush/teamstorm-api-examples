@@ -39,6 +39,10 @@ class WorkspaceUsersAPI(BaseAPI):
         but this method does not expose a from_token/max_items_count
         parameter -- get_all() still walks every page regardless, using the
         client's default page size of 500.
+        NOTE: the response's nextToken is the offset of the next page and is
+        null on the last page; the server filters and sorts (by name, then
+        id) before paging (TS-17841). This is compatible with
+        client.get_all()/iter_all(), which stop on an empty token.
         """
         params: dict[str, Any] = {}
         if display_name is not None:

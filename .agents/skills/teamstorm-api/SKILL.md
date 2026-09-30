@@ -79,7 +79,7 @@ print(inspect.signature(api.workitems.list))
 
 ## Grouped API
 
-`TeamStormAPI` exposes 32 lazy resource properties:
+`TeamStormAPI` exposes 35 lazy resource properties:
 
 - Core: `workspaces`, `folders`, `workitems`, `users`, `groups`.
 - Planning: `agile`, `sprints`, `portfolios`, `portfolio_elements`.
@@ -88,8 +88,9 @@ print(inspect.signature(api.workitems.list))
 - Collaboration: `workitem_comments`, `document_comments`, `links`, `workitem_sharing`, `document_sharing`.
 - Documents/files: `documents`, `document_versions`, `document_statuses`, `document_workitem_links`, `workitem_attachments`, `document_attachments`.
 - Integrations/reporting: `providers`, `open_id`, `git_integration_tokens`, `queries`, `time_tracking`.
+- Time metrics (SLA/OLA, v4.24.0): `workitem_time_metrics`, `workitem_metric_templates`, `work_calendars` (system administrators only).
 
-The exact map of all 159 committed OpenAPI operations to wrapper methods is in `docs/api-coverage.md`. Resource implementations are under `teamstorm/api/`; request and response models are under `teamstorm/models/`.
+The exact map of all 170 committed OpenAPI operations to wrapper methods is in `docs/api-coverage.md`. Resource implementations are under `teamstorm/api/`; request and response models are under `teamstorm/models/`.
 
 ## High-value method guide
 

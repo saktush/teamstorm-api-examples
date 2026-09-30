@@ -33,7 +33,7 @@ The same checks run in GitHub Actions for pull requests and updates to `main`.
 
 ## Updating the OpenAPI snapshot
 
-1. Replace `docs/openapi/swagger-v4.18.0.json` with a verified current snapshot and rename it to the real TeamStorm release version when needed.
+1. Replace `docs/openapi/swagger-v4.24.0.json` with a verified current snapshot (keep exactly one snapshot in the directory) and rename it to the real TeamStorm release version when needed; update every reference to the old file name (tests, docs, `CLAUDE.md`).
 2. Update `tests/api/api_coverage_manifest.py` for added, removed, or changed operations.
 3. Update `docs/api-coverage.md`.
 4. Run the full test suite; the coverage test compares the manifest and snapshot in both directions.
