@@ -38,6 +38,7 @@ from typing import BinaryIO
 from uuid import UUID, uuid4
 
 from teamstorm.api._base import BaseAPI
+from teamstorm.client import ApiError
 from teamstorm.models.attachments import AttachmentModel, AttachmentModelList
 from teamstorm.models.common import UUIDStr
 
@@ -74,7 +75,10 @@ class _AttachmentsAPIBase(BaseAPI):
 
     def _list_versions(self, workspace_key: str, parent_id: UUIDStr) -> list[AttachmentModel]:
         data = self.client.get(f"{self._attachments_path(workspace_key, parent_id)}/versions")
-        return AttachmentModelList.model_validate(data).items
+        # Live servers answer one {"items": [...]} envelope per attachment instead of the single envelope swagger
+        # declares (seen by the live e2e run); accept both and flatten.
+        envelopes = data if isinstance(data, list) else [data]
+        return [item for envelope in envelopes for item in AttachmentModelList.model_validate(envelope).items]
 
     def _get_version(
         self,
@@ -85,7 +89,14 @@ class _AttachmentsAPIBase(BaseAPI):
     ) -> AttachmentModel:
         path = f"{self._attachments_path(workspace_key, parent_id)}/{attachment_id}/versions/{version}"
         data = self.client.get(path)
-        return AttachmentModel.model_validate(data)
+        if not (isinstance(data, dict) and "items" in data):
+            return AttachmentModel.model_validate(data)
+        # Live servers wrap the version in an {"items": [...]} envelope instead of returning it bare (swagger).
+        items = AttachmentModelList.model_validate(data).items
+        found = next((item for item in items if item.version == version), items[0] if items else None)
+        if found is None:
+            raise ApiError(f"Сервер вернул пустой список для GET {path}", method="GET", path=path)
+        return found
 
     def _upload(
         self,

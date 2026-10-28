@@ -258,7 +258,9 @@ class PortfolioElementsAPITestCase(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_link_workitem_posts_bodyless(self) -> None:
-        self.client.post.return_value = _portfolio_element_payload()
+        # The live POST answer is an internal entity, not a PortfolioElementModel: it must not be parsed.
+        self.client.post.return_value = {"elements": [{"portfolioElementId": str(self.portfolio_element_id)}]}
+        self.client.get.return_value = _portfolio_element_payload()
 
         result = self.api.link_workitem(
             self.workspace,
@@ -268,6 +270,9 @@ class PortfolioElementsAPITestCase(unittest.TestCase):
 
         self.client.post.assert_called_once_with(
             f"/workspaces/{self.workspace}/portfolio-elements/{self.portfolio_element_id}/workitems/WS-42"
+        )
+        self.client.get.assert_called_once_with(
+            f"/workspaces/{self.workspace}/portfolio-elements/{self.portfolio_element_id}"
         )
         self.assertIsInstance(result, PortfolioElementModel)
 

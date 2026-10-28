@@ -165,7 +165,8 @@ calendars = api.work_calendars.list()
 
 - Explicitly attaching an attribute to a workitem type returned HTTP 500 on the tested instance.
 - Creating a workitem with an unattached custom attribute can return `AttributeNotFound`/404 even when the definition exists.
-- Linking a portfolio element may commit server-side and then fail response-model validation because of an unexpected response shape. Read back state before retrying.
+- The server answers a portfolio-element link with an internal `{"elements": [...]}` entity instead of `PortfolioElementModel`, so `link_workitem` returns the element read back with `get`. Do not retry a link blindly: read state first.
+- Attachment versions come wrapped in `{"items": [...]}` envelopes despite swagger; `list_versions`/`get_version` parse both shapes.
 
 ## Development
 
