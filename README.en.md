@@ -165,7 +165,8 @@ calendars = api.work_calendars.list()
 
 - Explicitly attaching an attribute to a workitem type returned HTTP 500 on the tested instance.
 - Creating a workitem with an unattached custom attribute can return `AttributeNotFound`/404 even when the definition exists.
-- Linking a portfolio element may commit server-side and then fail response-model validation because of an unexpected response shape. Read back state before retrying.
+- The server answers a portfolio-element link with an internal `{"elements": [...]}` entity instead of `PortfolioElementModel`, so `link_workitem` returns the element read back with `get`. Do not retry a link blindly: read state first.
+- Attachment versions come wrapped in `{"items": [...]}` envelopes despite swagger; `list_versions`/`get_version` parse both shapes.
 
 ## Development
 
@@ -177,6 +178,14 @@ uv pip install --python .venv/bin/python ".[dev,examples]"
 .venv/bin/black --check teamstorm/ examples/ tests/ scripts/
 .venv/bin/mypy teamstorm/
 .venv/bin/python -m pytest -q
+```
+
+### Live end-to-end run
+
+`tests/e2e/` is an opt-in scenario that calls every API operation in turn, except 7 excluded by the safety policy (user blocking, OpenID, another user's query visibility). It creates two throwaway workspaces `E2E…A`/`E2E…B`, deletes them at the end, sweeps workspaces left by interrupted runs and writes a report to `build/e2e/`. Existing data is never changed. It needs `BASE_URL`, `API_TOKEN` in `.env` and users `demo.user1`..`demo.user4` on the instance.
+
+```bash
+RUN_LIVE_E2E=1 .venv/bin/python -m pytest tests/e2e -s
 ```
 
 CI runs on pull requests, pushes to `main`, and manual dispatch. See [`CONTRIBUTING.md`](CONTRIBUTING.md), [`AGENTS.md`](AGENTS.md), and the [MIT license](LICENSE).

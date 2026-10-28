@@ -269,13 +269,16 @@ class PortfolioElementsAPI(BaseAPI):
         workitem_id: workitem UUID or key (path segment; swagger types this as
         a plain string, not a uuid format, matching the key-or-id resolution
         used for workitem path/query segments elsewhere in this API).
-        Returns: the updated PortfolioElementModel.
-        POST /workspaces/{workspace}/portfolio-elements/{portfolioElementId}/workitems/{workitem}.
+        Returns: the updated PortfolioElementModel, read back with get(): live servers answer the POST with an
+        internal {"elements": [...]} entity (zeroed workspace/tenant ids) instead of the PortfolioElementModel
+        swagger declares, so that body is not parsed.
+        POST /workspaces/{workspace}/portfolio-elements/{portfolioElementId}/workitems/{workitem},
+        then GET /workspaces/{workspace}/portfolio-elements/{portfolioElementId}.
         """
-        data = self.client.post(
+        self.client.post(
             f"/workspaces/{workspace_key}/portfolio-elements/{portfolio_element_id}/workitems/{workitem_id}"
         )
-        return PortfolioElementModel.model_validate(data)
+        return self.get(workspace_key, portfolio_element_id=portfolio_element_id)
 
     def unlink_workitem(
         self,

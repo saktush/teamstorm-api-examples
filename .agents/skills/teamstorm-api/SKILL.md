@@ -165,7 +165,8 @@ Observed behavior is instance/version specific and must be rechecked against the
 
 - Explicit type-to-attribute binding may return HTTP 500.
 - A custom attribute that exists but is not attached to the workitem type may produce `AttributeNotFound`/404 during workitem creation.
-- A portfolio-element link may commit and then return a shape that fails response-model validation. Read the portfolio element and linked workitems before any retry.
+- A portfolio-element link answers an internal `{"elements": [...]}` body; `link_workitem` reads the element back with `get`. Read the portfolio element and linked workitems before any retry.
+- `GET /users/{username}` returned `demo.user12` for `demo.user1`: resolve users by exact match on `users.list(username=...)`.
 
 Use `references/swagger-attribute-binding.md` for the isolated diagnostic. Do not alter an existing production type to investigate it.
 

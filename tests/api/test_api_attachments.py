@@ -5,6 +5,7 @@ from uuid import UUID, uuid4
 from pydantic import ValidationError
 
 from teamstorm.api.attachments import DocumentAttachmentsAPI, WorkitemAttachmentsAPI
+from teamstorm.client import ApiError
 
 
 def _attachment_payload(**overrides) -> dict:
@@ -80,6 +81,38 @@ class WorkitemAttachmentsAPITestCase(unittest.TestCase):
         )
         self.client.get_all.assert_not_called()
         self.assertEqual(2, len(result))
+
+    def test_list_versions_flattens_live_per_attachment_envelopes(self) -> None:
+        self.client.get.return_value = [
+            {"items": [_attachment_payload(version=1), _attachment_payload(version=2)]},
+            {"items": [_attachment_payload(version=1)]},
+        ]
+
+        result = self.api.list_versions(self.workspace, workitem_id=self.workitem_id)
+
+        self.assertEqual([1, 2, 1], [a.version for a in result])
+
+    def test_get_version_unwraps_live_envelope(self) -> None:
+        self.client.get.return_value = {
+            "items": [
+                _attachment_payload(version=2),
+                _attachment_payload(attachmentId=str(self.attachment_id), version=3),
+            ]
+        }
+
+        result = self.api.get_version(
+            self.workspace, workitem_id=self.workitem_id, attachment_id=self.attachment_id, version=3
+        )
+
+        self.assertEqual((self.attachment_id, 3), (result.attachment_id, result.version))
+
+    def test_get_version_empty_live_envelope_raises_api_error(self) -> None:
+        self.client.get.return_value = {"items": []}
+
+        with self.assertRaises(ApiError):
+            self.api.get_version(
+                self.workspace, workitem_id=self.workitem_id, attachment_id=self.attachment_id, version=1
+            )
 
     def test_get_version(self) -> None:
         self.client.get.return_value = _attachment_payload(attachmentId=str(self.attachment_id), version=3)
