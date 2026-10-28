@@ -179,4 +179,12 @@ uv pip install --python .venv/bin/python ".[dev,examples]"
 .venv/bin/python -m pytest -q
 ```
 
+### Live end-to-end run
+
+`tests/e2e/` is an opt-in scenario that calls every API operation in turn, except 7 excluded by the safety policy (user blocking, OpenID, another user's query visibility). It creates two throwaway workspaces `E2E…A`/`E2E…B`, deletes them at the end, sweeps workspaces left by interrupted runs and writes a report to `build/e2e/`. Existing data is never changed. It needs `BASE_URL`, `API_TOKEN` in `.env` and users `demo.user1`..`demo.user4` on the instance.
+
+```bash
+RUN_LIVE_E2E=1 .venv/bin/python -m pytest tests/e2e -s
+```
+
 CI runs on pull requests, pushes to `main`, and manual dispatch. See [`CONTRIBUTING.md`](CONTRIBUTING.md), [`AGENTS.md`](AGENTS.md), and the [MIT license](LICENSE).
